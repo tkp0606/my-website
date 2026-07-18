@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>富士山登頂計画 — 安全第一で山頂へ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#111a30;
+    --dusk:#33396a;
+    --dawn:#e8734a;
+    --gold:#f2a65a;
+    --paper:#f7f4ee;
+    --paper-dim:#efe9dd;
+    --ink:#1e2420;
+    --ink-soft:#4a5049;
+    --pine:#2f4f44;
+    --stone:#8b8680;
+    --snow:#ffffff;
+    --line:#dcd5c4;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4,.disp{
+    font-family:'Shippori Mincho', serif;
+    letter-spacing:.02em;
+  }
+  a{color:inherit;}
+  img,svg{display:block;max-width:100%;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  /* ---------- reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important;}
+  }
+
+  /* ---------- top progress ---------- */
+  #progress{
+    position:fixed; top:0; left:0; height:3px; width:0%;
+    background:linear-gradient(90deg,var(--dawn),var(--gold));
+    z-index:999; transition:width .1s linear;
+  }
+
+  /* ---------- nav ---------- */
+  nav.sidenav{
+    position:fixed; top:0; left:0; height:100vh; width:236px;
+    background:var(--night); color:#cdd3e6;
+    padding:28px 22px; z-index:60;
+    display:flex; flex-direction:column; gap:22px;
+    transform:translateX(0);
+    transition:transform .35s ease;
+    border-right:1px solid rgba(255,255,255,.06);
+  }
+  nav.sidenav .brand{
+    font-family:'Shippori Mincho',serif; font-size:1.05rem; color:var(--snow);
+    display:flex; align-items:center; gap:10px; font-weight:700;
+  }
+  nav.sidenav .brand svg{width:26px;height:26px;flex:none;}
+  nav.sidenav ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px; overflow-y:auto;}
+  nav.sidenav a{
+    display:flex; gap:10px; align-items:baseline;
+    text-decoration:none; color:#9aa3c2; font-size:.83rem;
+    padding:7px 8px; border-radius:6px; transition:background .2s, color .2s;
+  }
+  nav.sidenav a .num{font-family:'Shippori Mincho',serif;font-size:.72rem;color:var(--gold);width:22px;flex:none;}
+  nav.sidenav a:hover{background:rgba(255,255,255,.06); color:var(--snow);}
+  nav.sidenav a.active{background:rgba(232,115,74,.16); color:var(--snow); font-weight:700;}
+  .nav-toggle{
+    position:fixed; top:14px; left:14px; z-index:70; width:42px;height:42px;
+    background:var(--night); border:1px solid rgba(255,255,255,.15); border-radius:9px;
+    display:none; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .nav-toggle span, .nav-toggle::before, .nav-toggle::after{
+    content:''; position:absolute; width:20px; height:2px; background:#e8e8ec; border-radius:2px;
+  }
+  .nav-toggle::before{transform:translateY(-6px);}
+  .nav-toggle::after{transform:translateY(6px);}
+
+  main{margin-left:236px;}
+  @media (max-width:960px){
+    nav.sidenav{transform:translateX(-100%); box-shadow:8px 0 30px rgba(0,0,0,.3);}
+    nav.sidenav.open{transform:translateX(0);}
+    .nav-toggle{display:flex;}
+    main{margin-left:0;}
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative; overflow:hidden; color:var(--snow);
+    background:linear-gradient(180deg, var(--night) 0%, var(--dusk) 46%, var(--dawn) 82%, var(--gold) 100%);
+    padding:96px 0 60px;
+  }
+  .hero .wrap{position:relative; z-index:3;}
+  .hero .eyebrow{
+    font-size:.78rem; letter-spacing:.28em; text-transform:uppercase; color:var(--gold);
+    margin:0 0 18px;
+  }
+  .hero h1{
+    font-size:clamp(2.4rem,5.4vw,4.2rem); margin:0 0 18px; font-weight:800; line-height:1.25;
+  }
+  .hero h1 em{font-style:normal; color:var(--gold);}
+  .hero p.lead{
+    max-width:600px; font-size:1.02rem; line-height:2; color:#ffffff;
+    margin:0 0 44px; padding:16px 20px; border-radius:12px;
+    background:rgba(8,12,28,.34); backdrop-filter:blur(3px);
+    text-shadow:0 1px 10px rgba(0,0,0,.5);
+    border:1px solid rgba(255,255,255,.12);
+  }
+  .stat-row{
+    display:flex; flex-wrap:wrap; gap:14px; margin-bottom:0;
+  }
+  .stat{
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
+    backdrop-filter:blur(6px); border-radius:12px; padding:16px 20px; min-width:150px;
+  }
+  .stat .v{font-family:'Shippori Mincho',serif; font-size:1.5rem; font-weight:700; color:var(--snow);}
+  .stat .l{font-size:.74rem; color:#c9cee0; margin-top:2px;}
+
+  .ridge{position:absolute; left:0; right:0; bottom:0; width:100%; z-index:2;}
+  .stars{position:absolute; inset:0; z-index:1; opacity:.55;}
+
+  /* ---------- sections ---------- */
+  section{padding:88px 0; border-bottom:1px solid var(--line);}
+  section.tint{background:var(--paper-dim);}
+  .kicker{
+    display:flex; align-items:center; gap:12px; margin-bottom:8px;
+  }
+  .kicker .kn{
+    font-family:'Shippori Mincho',serif; color:var(--dawn); font-size:1rem; font-weight:700;
+  }
+  .kicker .kl{height:1px; flex:1; background:var(--line);}
+  h2.title{font-size:clamp(1.6rem,3vw,2.2rem); margin:0 0 8px; font-weight:800;}
+  .subtitle{color:var(--ink-soft); margin:0 0 40px; font-size:.98rem;}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:40px;}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  @media (max-width:820px){ .grid2{grid-template-columns:1fr;} .grid3{grid-template-columns:1fr;} }
+
+  .subhead{
+    font-family:'Shippori Mincho',serif; font-weight:700; font-size:1.05rem;
+    display:flex; align-items:baseline; gap:8px; margin:0 0 14px; color:var(--pine);
+  }
+  .subhead .tag{
+    font-size:.68rem; background:var(--pine); color:#fff; padding:2px 8px; border-radius:20px;
+    font-family:'Zen Kaku Gothic New',sans-serif; letter-spacing:.05em;
+  }
+  ul.plain{margin:0; padding-left:1.15em;}
+  ul.plain li{margin-bottom:6px;}
+  ul.clean{list-style:none; margin:0; padding:0;}
+  ul.clean li{
+    padding:9px 0 9px 22px; position:relative; border-bottom:1px dashed var(--line);
+  }
+  ul.clean li:last-child{border-bottom:none;}
+  ul.clean li::before{
+    content:'▸'; position:absolute; left:0; color:var(--dawn); font-size:.8em; top:11px;
+  }
+
+  .card{
+    background:var(--snow); border:1px solid var(--line); border-radius:14px; padding:24px;
+  }
+
+  /* route cards */
+  .route-card{
+    background:var(--snow); border:1px solid var(--line); border-radius:14px; padding:20px;
+    border-left:4px solid var(--dawn);
+  }
+  .route-card h4{margin:0 0 6px; font-size:1rem;}
+  .route-card p{margin:0; font-size:.88rem; color:var(--ink-soft);}
+
+  /* climate diagram */
+  .climate-diagram{background:linear-gradient(180deg,#0e1730 0%, #3a3f72 42%, #d97a56 78%, #f2c07a 100%);
+    border-radius:16px; padding:30px 26px 18px; color:#fff; position:relative;}
+  .climate-diagram svg{width:100%; height:auto;}
+  .climate-legend{display:flex; flex-wrap:wrap; gap:18px; margin-top:14px; font-size:.82rem; color:#f2ede1;}
+  .climate-legend span.dot{display:inline-block; width:8px;height:8px;border-radius:50%; margin-right:6px; vertical-align:middle;}
+
+  /* checklist */
+  .checklist-toolbar{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:10px;
+  }
+  .progress-pill{
+    font-size:.8rem; background:var(--pine); color:#fff; padding:6px 14px; border-radius:20px;
+    font-family:'Shippori Mincho',serif;
+  }
+  .check-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px 24px;}
+  @media (max-width:640px){.check-grid{grid-template-columns:1fr;}}
+  label.chk{
+    display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px dashed var(--line);
+    font-size:.92rem; cursor:pointer;
+  }
+  label.chk input{
+    appearance:none; width:19px; height:19px; border-radius:5px; border:2px solid var(--stone);
+    flex:none; position:relative; cursor:pointer; transition:.15s;
+  }
+  label.chk input:checked{ background:var(--pine); border-color:var(--pine);}
+  label.chk input:checked::after{
+    content:''; position:absolute; left:5px; top:1px; width:5px; height:9px;
+    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+  label.chk span.note{color:var(--stone); font-size:.78rem; margin-left:auto; white-space:nowrap;}
+  label.chk input:checked ~ .txt{color:var(--stone); text-decoration:line-through;}
+
+  /* training */
+  .train-list{list-style:none; margin:0; padding:0; counter-reset:tr;}
+  .train-list li{
+    counter-increment:tr; position:relative; padding:10px 0 10px 44px; border-bottom:1px dashed var(--line);
+  }
+  .train-list li::before{
+    content:counter(tr,decimal-leading-zero); position:absolute; left:0; top:8px;
+    font-family:'Shippori Mincho',serif; color:var(--gold); font-weight:700; font-size:.95rem;
+  }
+
+  /* application flow */
+  .flow{position:relative; padding-left:28px; border-left:2px solid var(--line);}
+  .flow-step{position:relative; padding-bottom:30px;}
+  .flow-step:last-child{padding-bottom:0;}
+  .flow-step::before{
+    content:attr(data-n); position:absolute; left:-40px; top:0; width:26px;height:26px;
+    background:var(--pine); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:.78rem; font-family:'Shippori Mincho',serif; font-weight:700;
+  }
+  .flow-step h4{margin:0 0 6px; font-size:.98rem;}
+  .flow-step p{margin:0; font-size:.87rem; color:var(--ink-soft);}
+  .flow-step .warn{
+    margin-top:8px; font-size:.8rem; background:#fff4ea; border:1px solid #f0d8b8; color:#8a5a24;
+    padding:8px 12px; border-radius:8px;
+  }
+
+  .fee-badge{
+    display:inline-flex; align-items:center; gap:8px; background:var(--night); color:#fff; padding:8px 16px;
+    border-radius:24px; font-family:'Shippori Mincho',serif; font-size:.95rem; margin-top:6px;
+  }
+
+  /* emergency */
+  .emg-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  @media (max-width:820px){.emg-grid{grid-template-columns:1fr;}}
+  .emg-card{background:var(--night); color:#fff; border-radius:14px; padding:22px;}
+  .emg-card .num{font-family:'Shippori Mincho',serif; font-size:1.8rem; color:var(--gold);}
+  .emg-card .lbl{font-size:.82rem; color:#c9cee0; margin-top:4px;}
+  .fill-note{
+    border:1.5px dashed var(--stone); border-radius:12px; padding:18px 20px; color:var(--ink-soft); font-size:.9rem;
+  }
+
+  table{width:100%; border-collapse:collapse; font-size:.9rem;}
+  th,td{text-align:left; padding:10px 8px; border-bottom:1px solid var(--line);}
+  th{color:var(--stone); font-weight:700; font-size:.78rem; letter-spacing:.04em; text-transform:uppercase;}
+  .schedule-grid{margin:0 0 30px;}
+  .schedule-card{padding:20px; overflow:hidden;}
+  .schedule-card .subhead{margin-bottom:10px;}
+  .schedule-table{table-layout:fixed; font-size:.78rem; line-height:1.45;}
+  .schedule-table th,.schedule-table td{padding:8px 5px; vertical-align:top;}
+  .schedule-table th:first-child,.schedule-table td:first-child{width:48%;}
+  .schedule-table th:not(:first-child),.schedule-table td:not(:first-child){width:17.33%; white-space:nowrap;}
+
+  .ref{
+    font-size:.82rem; color:var(--stone); word-break:break-all;
+  }
+  .ref a{color:var(--pine); text-decoration:none; border-bottom:1px solid var(--line);}
+
+  footer{
+    background:var(--night); color:#9aa3c2; padding:50px 0; text-align:center; font-size:.85rem;
+  }
+  footer .disp{color:var(--snow); font-size:1.2rem; margin-bottom:10px;}
+
+  .goal-band{
+    background:var(--pine); color:#fff; border-radius:16px; padding:26px 30px; display:flex; align-items:center; gap:20px;
+    margin-top:8px; flex-wrap:wrap;
+  }
+  .goal-band .g-icon{width:38px; height:38px; flex:none;}
+  .goal-band .g-text{font-family:'Shippori Mincho',serif; font-size:1.2rem; font-weight:700;}
+
+  /* ---------- mobile layout ---------- */
+  .route-flow-mobile{display:none;}
+  @media (max-width:640px){
+    .wrap{padding:0 18px;}
+    section{padding:56px 0;}
+    .hero{padding:74px 0 44px;}
+    .hero h1{font-size:2.25rem;}
+    .stat{min-width:0; flex:1 1 132px; padding:13px 15px;}
+    .card,.emg-card{padding:18px;}
+    .schedule-card{padding:15px;}
+    .schedule-table{font-size:.72rem;}
+    .schedule-table th,.schedule-table td{padding:7px 3px;}
+    .goal-band{padding:20px; gap:14px;}
+    table{font-size:.82rem;}
+    th,td{padding:9px 6px;}
+    .climate-diagram{padding:20px 16px 18px !important;}
+    .climate-diagram > svg{display:none;}
+    .route-flow-mobile{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+    .route-flow-mobile h4{margin:0 0 10px; font-family:'Shippori Mincho',serif; font-size:1rem;}
+    .route-flow-mobile .ascent h4{color:#f2c07a;}
+    .route-flow-mobile .descent h4{color:#fff;}
+    .route-mobile-list{margin:0; padding:0; list-style:none;}
+    .route-mobile-list li{position:relative; padding:7px 5px 20px; border-left:2px solid rgba(255,255,255,.45); font-size:.78rem; line-height:1.35;}
+    .route-mobile-list li:last-child{padding-bottom:4px;}
+    .route-mobile-list li::before{content:''; position:absolute; left:-5px; top:10px; width:8px; height:8px; border-radius:50%; background:#fff;}
+    .route-mobile-list.ascent li::before{background:#f2c07a;}
+    .route-mobile-list li:not(:last-child)::after{content:attr(data-time) ' ↓'; position:absolute; left:10px; bottom:2px; color:#f2ede1; font-size:.68rem;}
+    .route-mobile-list .station{display:block; font-weight:700; color:#fff;}
+    .route-mobile-list .height{display:block; color:#f2ede1; font-size:.7rem;}
+    .climate-legend{gap:8px; margin-top:16px; font-size:.75rem; line-height:1.55;}
+  }
+
+  :focus-visible{outline:3px solid var(--gold); outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<button class="nav-toggle" id="navToggle" aria-label="メニュー開閉"></button>
+
+<nav class="sidenav" id="sidenav">
+  <div class="brand">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M2 19L9 7l3 5 2-3 8 10H2z" fill="#f2a65a"/><path d="M9 7l1.6 2.7L8 14l-3 5H2L9 7z" fill="#fff" opacity=".55"/></svg>
+    富士山登頂計画
+  </div>
+  <ol id="navList">
+    <li><a href="#about"><span class="num">01</span>富士山について</a></li>
+    <li><a href="#route"><span class="num">02</span>富士宮ルートについて</a></li>
+    <li><a href="#gear"><span class="num">03</span>持ちもの</a></li>
+    <li><a href="#apply"><span class="num">04</span>事前申請</a></li>
+    <li><a href="#emergency"><span class="num">05</span>緊急時連絡先</a></li>
+    <li><a href="#schedule"><span class="num">06</span>スケジュール</a></li>
+    <li><a href="#hut"><span class="num">07</span>万年雪山荘</a></li>
+    <li><a href="#ohachi"><span class="num">08</span>山頂でできること</a></li>
+  </ol>
+</nav>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero" id="top">
+    <svg class="stars" viewBox="0 0 1180 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="60" cy="30" r="1.3" fill="#fff"/><circle cx="140" cy="60" r="1" fill="#fff"/>
+      <circle cx="260" cy="20" r="1.5" fill="#fff"/><circle cx="360" cy="70" r="1" fill="#fff"/>
+      <circle cx="480" cy="15" r="1.2" fill="#fff"/><circle cx="560" cy="55" r="1" fill="#fff"/>
+      <circle cx="700" cy="25" r="1.4" fill="#fff"/><circle cx="820" cy="10" r="1" fill="#fff"/>
+      <circle cx="920" cy="45" r="1.3" fill="#fff"/><circle cx="1040" cy="20" r="1" fill="#fff"/>
+      <circle cx="1120" cy="60" r="1.2" fill="#fff"/>
+    </svg>
+
+    <div class="wrap">
+      <p class="eyebrow">MT. FUJI CLIMBING PLAN — 2026</p>
+      <h1>安全第一で、<br><em>富士山登頂</em>を目指す。</h1>
+    </div>
+
+    <svg class="ridge" viewBox="0 0 1440 260" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 260 L0 190 L180 130 L260 150 L420 60 L520 100 L620 20 L720 90 L820 40 L960 130 L1080 90 L1200 170 L1320 130 L1440 190 L1440 260 Z" fill="#f7f4ee"/>
+      <path d="M620 20 L660 45 L600 55 L640 70 L595 60 L620 20Z" fill="#ffffff"/>
+    </svg>
+  </header>
+
+  <!-- ============ 01 富士山について ============ -->
+  <section id="about">
+    <div class="wrap">
+      <div class="kicker"><span class="kn">01</span><span class="kl"></span></div>
+      <h2 class="title">富士山について</h2>
+      <p class="subtitle">自然・地理的な特徴と、登山・アウトドアとしての特徴を押さえておく。</p>
+
+      <div class="grid2">
+        <div>
+          <p class="subhead"><span class="tag">1-1</span>基本情報</p>
+          <ul class="clean">
+            <li>標高：3,776m（日本最高峰）</li>
+            <li>山の種類：成層火山（複合火山）</li>
+            <li>位置：山梨県・静岡県にまたがる</li>
+            <li>山体：非常に美しい円錐形（左右対称に近い）</li>
+          </ul>
+        </div>
+        <div>
+          <p class="subhead"><span class="tag">1-2</span>火山としての特徴</p>
+          <ul class="clean">
+            <li>活火山（現在は休止状態）</li>
+            <li>最後の噴火：1707年 宝永噴火</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="subhead" style="margin-top:40px;"><span class="tag">1-3</span>気候・環境</p>
+      <p style="margin:0 0 18px; color:var(--ink-soft); font-size:.92rem;">標高差が大きく、気候帯が麓〜山頂で大きく異なる。山頂は夏でも0℃近くになることがあり、風が非常に強いため体感温度はさらに低い。</p>
+
+      <div class="climate-diagram">
+        <svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="30,220 230,150 520,90 830,30" fill="none" stroke="#ffffff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>
+          <g font-family="Zen Kaku Gothic New, sans-serif">
+            <circle cx="30" cy="220" r="6" fill="#fff"/>
+            <text x="30" y="245" fill="#fff" font-size="14" text-anchor="middle" font-weight="700">30℃</text>
+            <text x="30" y="262" fill="#f2ede1" font-size="12" text-anchor="middle">平地</text>
+
+            <circle cx="230" cy="150" r="6" fill="#fff"/>
+            <text x="230" y="130" fill="#fff" font-size="14" text-anchor="middle" font-weight="700">18℃</text>
+            <text x="230" y="175" fill="#f2ede1" font-size="12" text-anchor="middle">5合目</text>
+
+            <circle cx="560" cy="80" r="6" fill="#fff"/>
+            <text x="560" y="60" fill="#fff" font-size="14" text-anchor="middle" font-weight="700">7℃</text>
+            <text x="560" y="105" fill="#f2ede1" font-size="12" text-anchor="middle">山頂（日中）</text>
+
+            <circle cx="830" cy="30" r="6" fill="#fff"/>
+            <text x="830" y="18" fill="#fff" font-size="14" text-anchor="middle" font-weight="700">0℃</text>
+            <text x="770" y="52" fill="#f2ede1" font-size="12" text-anchor="middle">山頂（日の出前）</text>
+          </g>
+          <line x1="560" y1="80" x2="560" y2="80" stroke="none"/>
+          <polyline points="230,150 560,80" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="5 5" opacity="0.6"/>
+        </svg>
+        <div class="climate-legend">
+          <span><span class="dot" style="background:#fff"></span>標高が上がるほど気温は低下し、風で体感温度はさらに下がる</span>
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-top:48px;">
+        <div>
+          <p class="subhead"><span class="tag">2-1</span>登山のしやすさと難しさ</p>
+          <ul class="clean">
+            <li>五合目まで車・バスで行ける</li>
+            <li>技術的な難易度は低め（岩登り不要）</li>
+            <li>ただし高山病リスクがある</li>
+            <li>長時間歩行になる</li>
+            <li>天候が急変しやすい</li>
+          </ul>
+          <p style="font-size:.85rem; color:var(--pine); font-weight:700; margin-top:10px;">→ 体力・計画性が何より重要</p>
+        </div>
+        <div>
+          <p class="subhead"><span class="tag">2-2</span>登山シーズン</p>
+          <ul class="clean">
+            <li>7月上旬〜9月上旬のみ一般登山が可能</li>
+            <li>それ以外の期間は積雪・凍結で危険</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="subhead" style="margin-top:40px;"><span class="tag">2-3</span>登山ルート</p>
+      <div class="grid3">
+        <div class="route-card"><h4>吉田ルート</h4><p>最も人気。山小屋が多く、初心者にも選ばれやすい。</p></div>
+        <div class="route-card"><h4>富士宮ルート</h4><p>最短ルートだが急傾斜。今回の計画ルート。</p></div>
+        <div class="route-card"><h4>須走ルート</h4><p>森林帯と砂走りが特徴。</p></div>
+        <div class="route-card"><h4>御殿場ルート</h4><p>最長で健脚向け。</p></div>
+      </div>
+
+      <p class="ref" style="margin-top:32px;">参考文献：<a href="https://store.yamap.com/articles/items-for-climbing-mt-fuji" target="_blank" rel="noopener">store.yamap.com — 富士登山の持ちもの</a></p>
+    </div>
+  </section>
+
+  <!-- ============ 02 富士宮ルート ============ -->
+  <section id="route" class="tint">
+    <div class="wrap">
+      <div class="kicker"><span class="kn">02</span><span class="kl"></span></div>
+      <h2 class="title">富士宮ルートの特徴</h2>
+
+      <ul class="clean" style="max-width:760px;">
+        <li>4ルートの中で最も標高の高い位置から出発するため、山頂までの距離が短い</li>
+        <li>そのため吉田ルートに次いで登山者が多い</li>
+        <li>全体的に傾斜が急で、やや岩場が多い</li>
+        <li>登山道と下山道が同じルートのため道を間違えにくい反面、混雑時は譲り合いが必要</li>
+      </ul>
+
+      <p class="subhead" style="margin-top:32px;"><span class="tag">参考</span>富士宮ルートの基本データ</p>
+      <div class="grid3">
+        <div class="route-card"><h4>出発標高</h4><p>富士宮口五合目 約2,400m（4ルート中もっとも高い出発地点）</p></div>
+        <div class="route-card"><h4>標高差</h4><p>山頂まで約1,370m</p></div>
+        <div class="route-card"><h4>登り／下りの目安</h4><p>登り 4〜7時間／下り 2〜4時間（休憩時間を除く）</p></div>
+      </div>
+
+      <p class="ref" style="margin-top:24px;">参考：<a href="https://www.fujisan-climb.jp/trails/fujinomiya/index.html" target="_blank" rel="noopener">fujisan-climb.jp — 富士宮ルート</a> ／ <a href="https://www.fujisan-climb.jp/wp-content/themes/mtfuji-climbing-official-web/assets/pdf/fujinomiya_routes_pdf_ver0321.pdf" target="_blank" rel="noopener">富士宮ルート マップPDF</a></p>
+    </div>
+  </section>
+
+  <!-- ============ 03 持ちもの ============ -->
+  <section id="gear" class="tint">
+    <div class="wrap">
+      <div class="kicker"><span class="kn">03</span><span class="kl"></span></div>
+      <h2 class="title">持ちもの</h2>
+      <div class="checklist-toolbar">
+        <p class="subtitle" style="margin:0;">必須・推奨に分けてチェックしながら準備する。</p>
+        <span class="progress-pill" id="pillCount">0 / 0 準備完了</span>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <p class="subhead"><span class="tag">必須</span></p>
+          <div class="check-grid" id="essentialList">
+            <label class="chk"><input type="checkbox"><span class="txt">登山靴</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">レインウェア</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">リュック</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">防寒着</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">リュックカバー</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">ヘッドライト</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">予備電池</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">行動食（甘いもの：チョコ・グミ・キャンディー・エナジーバー）</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">行動食（塩分：塩タブレット・塩飴）</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">飲料水（1.5〜2L）</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">タオル</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">財布（すぐ取り出せるように）</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">スマホ</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">モバイルバッテリー</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">日焼け止め</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">保険証</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">ビニール袋</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">常備薬</span></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <p class="subhead" style="color:var(--dawn);"><span class="tag" style="background:var(--dawn);">推奨</span></p>
+          <div class="check-grid" id="recommendList">
+            <label class="chk"><input type="checkbox"><span class="txt">肌着（例：エアリズム）</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">長袖Tシャツ（日焼け対策）</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">帽子（日焼け対策）</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">手袋（防寒）</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">靴下（通気性・換え含む）</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">トイレットペーパー</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">絆創膏</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">サングラス</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">ネックウォーマー</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">アイマスク／耳栓</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">ウェットティッシュ</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">カイロ</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">ボディーシート</span></label>
+            <label class="chk"><input type="checkbox"><span class="txt">マスク（砂ぼこり対策）</span></label>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.78rem; color:var(--stone); margin-top:14px;">※ チェックはこのページを開いている間のみ有効です（再読み込みでリセットされます）。</p>
+    </div>
+  </section>
+
+  <!-- ============ 04 事前申請 ============ -->
+  <section id="apply">
+    <div class="wrap">
+      <div class="kicker"><span class="kn">04</span><span class="kl"></span></div>
+      <h2 class="title">事前申請</h2>
+      <p class="subtitle">静岡県側から入山する場合の、入山までの流れ。</p>
+      <div class="fee-badge">入山料 ¥4,000 / 人</div>
+
+      <div class="flow" style="margin-top:32px;">
+        <div class="flow-step" data-n="1"><h4>Webサイトにアクセス</h4><p>「富士登山オフィシャルサイト」の静岡県側入山案内ページへアクセスする。</p></div>
+        <div class="flow-step" data-n="2"><h4>「静岡県FUJI NAVI」をインストール</h4><p>静岡県公式アプリをApp Store / Google Playから無料で取得する。</p></div>
+        <div class="flow-step" data-n="3"><h4>事前学習の修了</h4><p>動画またはテキストでeラーニングを受講し、富士山テストに全問合格する（入山証受取の条件）。</p></div>
+        <div class="flow-step" data-n="4"><h4>登山情報を登録</h4><p>登山日・氏名・山小屋宿泊の有無などを入力する。
+          <div class="warn">このシステムは山小屋の宿泊予約ではない。宿泊は各自で山小屋へ直接予約する。また、午後2時〜翌午前3時に入山する場合は山小屋の宿泊予約が必須。</div></p></div>
+        <div class="flow-step" data-n="5"><h4>入山料の納付</h4><p>クレジットカードや電子マネー等で入山料 4,000円／人 を納付する。
+          <div class="warn">キャンセルは登山日当日まで可能（手数料無料・全額返金）。ただし現地での入山証認証後はキャンセル不可。</div></p></div>
+        <div class="flow-step" data-n="6"><h4>入山証の受取り</h4><p>使用者情報を入力すると、入山証（QRコード）が表示される。当日は電波が不安定な場所もあるため、画面はスクリーンショットで保存しておくと安心。</p></div>
+        <div class="flow-step" data-n="7"><h4>当日、現地で入山証を提示</h4><p>「静岡県FUJI NAVI」を起動し、現地係員にQRコードを提示する。</p></div>
+        <div class="flow-step" data-n="8"><h4>リストバンドを受け取る</h4><p></p></div>
+        <div class="flow-step" data-n="9"><h4>リストバンドを登山口スタッフに提示し入山</h4><p></p></div>
+      </div>
+
+      <p class="ref" style="margin-top:32px;">参考文献：<a href="https://www.fujisan-climb.jp/info/1722/" target="_blank" rel="noopener">fujisan-climb.jp — 静岡県側 富士登山規制について（2026年）</a></p>
+    </div>
+  </section>
+
+  <!-- ============ 05 緊急時連絡先 ============ -->
+  <section id="emergency" class="tint">
+    <div class="wrap">
+      <div class="kicker"><span class="kn">05</span><span class="kl"></span></div>
+      <h2 class="title">緊急時連絡先</h2>
+      <p class="subtitle">現地で慌てないよう、事前に控えて全員に共有しておく。</p>
+
+      <div class="emg-grid">
+        <div class="emg-card"><div class="num">110</div><div class="lbl">警察（事件・遭難時の通報）</div></div>
+        <div class="emg-card"><div class="num">119</div><div class="lbl">消防・救急（負傷・急病）</div></div>
+        <div class="emg-card"><div class="num">#7119</div><div class="lbl">救急安心センター（緊急度に迷う場合）</div></div>
+      </div>
+
+      <div class="fill-note" style="margin-top:22px;">
+        <strong>各自で控えておくこと：</strong> メンバー各自の緊急連絡先（家族の電話番号）と、利用する山小屋の連絡先は、このページとは別に手帳やスマホのメモ、紙などに必ず書き留めておく。当日は電波が不安定な場所もあるため、紙のメモも用意しておくと安心。
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 スケジュール ============ -->
+  <section id="schedule">
+    <div class="wrap">
+      <div class="kicker"><span class="kn">06</span><span class="kl"></span></div>
+      <h2 class="title">スケジュール</h2>
+      <div class="grid2 schedule-grid">
+        <div class="card schedule-card">
+          <p class="subhead"><span class="tag">1日目</span>8/23（日）スケジュール</p>
+          <table class="schedule-table">
+            <thead><tr><th>工程</th><th>開始</th><th>終了</th><th>所要時間</th></tr></thead>
+            <tbody>
+              <tr><td>中村家 → 水ヶ塚公園駐車場（車）</td><td>10:10</td><td>11:00</td><td>0:50</td></tr>
+              <tr><td>水ヶ塚公園駐車場 → 5合目（バス）</td><td>11:35</td><td>12:05</td><td>0:30</td></tr>
+              <tr><td>体を慣らす（食事・体を動かす）</td><td>12:05</td><td>13:00</td><td>0:55</td></tr>
+              <tr><td>5合目 → 6合目（トイレ有）</td><td>13:00</td><td>13:25</td><td>0:25</td></tr>
+              <tr><td>休憩</td><td>13:25</td><td>13:40</td><td>0:15</td></tr>
+              <tr><td>6合目 → 新7合目</td><td>13:40</td><td>14:50</td><td>1:10</td></tr>
+              <tr><td>休憩</td><td>14:50</td><td>15:05</td><td>0:15</td></tr>
+              <tr><td>新7合目 → 元祖7合目</td><td>15:05</td><td>16:05</td><td>1:00</td></tr>
+              <tr><td>休憩</td><td>16:05</td><td>16:20</td><td>0:15</td></tr>
+              <tr><td>元祖7合目 → 8合目</td><td>16:20</td><td>17:10</td><td>0:50</td></tr>
+              <tr><td>休憩</td><td>17:10</td><td>17:25</td><td>0:15</td></tr>
+              <tr><td>8合目 → 万年雪山荘（9合目）</td><td>17:25</td><td>18:00</td><td>0:35</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card schedule-card">
+          <p class="subhead"><span class="tag">2日目</span>8/24（月）スケジュール</p>
+          <table class="schedule-table">
+            <thead><tr><th>工程</th><th>開始</th><th>終了</th><th>所要時間</th></tr></thead>
+            <tbody>
+              <tr><td>万年雪山荘 → 9合5勺</td><td>6:00</td><td>6:35</td><td>0:35</td></tr>
+              <tr><td>休憩</td><td>6:35</td><td>6:45</td><td>0:10</td></tr>
+              <tr><td>9合5勺 → 山頂</td><td>6:45</td><td>7:20</td><td>0:35</td></tr>
+              <tr><td>お鉢めぐり</td><td>7:20</td><td>9:20</td><td>2:00</td></tr>
+              <tr><td>山頂 → 9合目</td><td>9:20</td><td>10:00</td><td>0:40</td></tr>
+              <tr><td>休憩</td><td>10:00</td><td>10:15</td><td>0:15</td></tr>
+              <tr><td>9合目 → 元祖7合目</td><td>10:15</td><td>11:00</td><td>0:45</td></tr>
+              <tr><td>休憩</td><td>11:00</td><td>11:15</td><td>0:15</td></tr>
+              <tr><td>元祖7合目 → 6合目</td><td>11:15</td><td>12:15</td><td>1:00</td></tr>
+              <tr><td>休憩</td><td>12:15</td><td>12:30</td><td>0:15</td></tr>
+              <tr><td>6合目 → 5合目</td><td>12:30</td><td>12:45</td><td>0:15</td></tr>
+              <tr><td>5合目 → 水ヶ塚公園</td><td>13:00</td><td>13:30</td><td>0:30</td></tr>
+              <tr><td>水ヶ塚公園 → 中村家</td><td>13:30</td><td>14:20</td><td>0:50</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="subhead"><span class="tag">交通</span>アクセスルート</p>
+        <p style="margin:0; font-size:.92rem; color:var(--ink-soft);">
+          マイカー規制により富士山5合目までは車で直接行けないため、<br>
+          <strong>水ヶ塚公園まで車で移動 → シャトルバスで5合目へ移動する。</strong>
+        </p>
+      </div>
+
+      <p class="subhead" style="margin-top:36px;"><span class="tag">参考</span>富士宮ルート 登り・下りの流れ</p>
+      <div class="grid2">
+        <div class="card">
+          <p class="subhead" style="color:var(--pine);"><span class="tag" style="background:var(--pine);">登り</span></p>
+          <p style="margin:0; font-size:.9rem; color:var(--ink-soft);">
+            五合目〜六合目は比較的歩きやすい道。六合目から先は急な岩場と硬い地面の急登が始まり、七合目から山頂にかけてはさらに傾斜が増して岩がちな道が続く。落石にも注意が必要な区間。登山道と下山道が同じため道に迷いにくい一方、混雑時はすれ違いの譲り合い（登り優先）が必要になる。
+          </p>
+        </div>
+        <div class="card">
+          <p class="subhead" style="color:var(--dawn);"><span class="tag" style="background:var(--dawn);">下り</span></p>
+          <p style="margin:0; font-size:.9rem; color:var(--ink-soft);">
+            登ってきた道と同じ道を下る。新七合目付近までは登りと同様に岩がちで傾斜も急なため、滑りやすく足元が不安定。膝への負担が大きいので転倒・落石に注意しながらゆっくり下る。六合目を過ぎると緑が増え、傾斜も緩やかで歩きやすくなる。
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 07 万年雪山荘 ============ -->
+  <section id="hut">
+    <div class="wrap">
+      <div class="kicker"><span class="kn">07</span><span class="kl"></span></div>
+      <h2 class="title">万年雪山荘</h2>
+      <p class="subtitle">富士宮ルート九合目にある山小屋。ご来光鑑賞の拠点としても便利な位置にある。</p>
+
+      <div class="grid2">
+        <div class="card">
+          <p class="subhead"><span class="tag">位置・特徴</span></p>
+          <ul class="clean">
+            <li>富士宮ルート<strong>九合目</strong>に位置する山小屋（宿泊・食事）</li>
+            <li>山頂までは平均<strong>約1時間</strong>。ご来光を山頂で見たい場合にも便利な立地</li>
+            <li>山荘からもご来光を見ることができる</li>
+          </ul>
+        </div>
+        <div class="card">
+          <p class="subhead"><span class="tag">営業</span>食堂営業時間</p>
+          <p style="margin:0 0 12px; font-size:1.1rem; font-family:'Shippori Mincho',serif; font-weight:700; color:var(--pine);">午前2:00 〜 午後19:00</p>
+          <p style="margin:0; font-size:.88rem; color:var(--ink-soft);">早朝2時から営業しており、登山者の休憩所としても利用されている。</p>
+        </div>
+      </div>
+
+      <p class="subhead" style="margin-top:32px;"><span class="tag">予約・問い合わせ</span></p>
+      <ul class="clean" style="max-width:640px;">
+        <li>宿泊予約は「Yamatan」サイト内の万年雪山荘予約ページから</li>
+        <li>電話：090-7025-2236（シーズン中）／ 0544-27-2355（オフシーズン）</li>
+      </ul>
+
+      <p class="ref" style="margin-top:22px;">参考：<a href="https://mannnennyuki.wixsite.com/mannennyuki" target="_blank" rel="noopener">万年雪山荘 公式サイト</a> ／ <a href="https://www.yamatan.net/hut/mannenyukisanso" target="_blank" rel="noopener">Yamatan — 万年雪山荘 予約ページ</a></p>
+    </div>
+  </section>
+
+  <!-- ============ 08 富士山山頂でできること ============ -->
+  <section id="ohachi" class="tint">
+    <div class="wrap">
+      <div class="kicker"><span class="kn">08</span><span class="kl"></span></div>
+      <h2 class="title">富士山山頂でできること</h2>
+      <p class="subtitle">登頂後、下山前に山頂で楽しめること・立ち寄れる場所をまとめた。</p>
+
+      <div class="grid2">
+        <div>
+          <p class="subhead"><span class="tag">お鉢巡り</span></p>
+          <p style="margin:0 0 14px; font-size:.92rem; color:var(--ink-soft);">
+            山頂の火口縁をぐるりと一周するコース。火口は直径約780m・深さ約200mあり、一周は休憩なしで約1時間30分〜2時間が目安。360度のパノラマが広がり、天候が良ければ北アルプスの槍ヶ岳まで見えることもある。かつての富士講登山にならい、時計回りで巡るのが伝統的とされる。
+          </p>
+          <ul class="clean">
+            <li><strong>剣ヶ峰</strong>：標高3,776m。山頂よりさらに上にある、正真正銘の日本最高峰地点。急斜面「馬の背」を登った先にあり、標柱前は記念撮影の人気スポット（混雑時は順番待ちも）</li>
+            <li><strong>富士山測候所</strong>：日本最高所の気象観測所。2004年まで職員が常駐していたが、気象衛星の発展により現在は無人観測のみ。建物内には入れず外観のみ見学可能</li>
+          </ul>
+          <div class="warn" style="margin-top:10px;">火口の外側は崖状のため、強風時や濃霧・夜間の視界不良時は無理をせず中止の判断を。</div>
+        </div>
+        <div>
+          <p class="subhead"><span class="tag">参拝・買い物・休憩</span></p>
+          <ul class="clean">
+            <li><strong>富士山頂上浅間大社奥宮</strong>：参拝・お守り・御朱印など。開山期は神職が常駐する</li>
+            <li><strong>富士山頂上久須志神社</strong>：参拝・売店</li>
+            <li><strong>山頂郵便局</strong>：開山期の期間限定で営業。山頂からはがきを送ることができる</li>
+            <li><strong>金明水・銀明水</strong>：山頂に湧く霊水として知られる湧水地点</li>
+            <li><strong>ご来光</strong>：山頂全体が鑑賞スポット。剣ヶ峰や成就岳付近も人気</li>
+            <li><strong>山小屋</strong>：食事や売店でのお土産購入、ベンチでの休憩も可能</li>
+          </ul>
+        </div>
+      </div>
+      <p class="ref" style="margin-top:22px;">参考：<a href="https://www.fujisan-climb.jp/trails/course1.html" target="_blank" rel="noopener">富士登山オフィシャルサイト — お鉢巡り</a> ／ <a href="https://travelroad.co.jp/fuji-tour/blog/fuji-top/" target="_blank" rel="noopener">travelroad.co.jp — 富士山頂の楽しみ方</a></p>
+    </div>
+  </section>
+
+  <!-- goal reminder -->
+  <section>
+    <div class="wrap">
+      <div class="goal-band">
+        <svg class="g-icon" viewBox="0 0 24 24" fill="none"><path d="M2 19L9 7l3 5 2-3 8 10H2z" fill="#fff"/></svg>
+        <div class="g-text">★ Goal：安全第一で、富士山登頂を目指す。</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="disp">富士山登頂計画</div>
+      <p>無理をせず、天候と体調を最優先に判断する。良い登山を。</p>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  // mobile nav toggle
+  const toggle = document.getElementById('navToggle');
+  const sidenav = document.getElementById('sidenav');
+  toggle.addEventListener('click', () => sidenav.classList.toggle('open'));
+  document.querySelectorAll('#navList a').forEach(a=>{
+    a.addEventListener('click', ()=> sidenav.classList.remove('open'));
+  });
+
+  // scroll progress
+  const progress = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+    progress.style.width = scrolled + '%';
+  });
+
+  // active nav highlighting
+  const sections = document.querySelectorAll('main section[id]');
+  const navLinks = document.querySelectorAll('#navList a');
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        navLinks.forEach(l=>l.classList.remove('active'));
+        const link = document.querySelector(`#navList a[href="#${entry.target.id}"]`);
+        if(link) link.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-40% 0px -50% 0px'});
+  sections.forEach(s=>obs.observe(s));
+
+  // checklist progress counter
+  const allChecks = document.querySelectorAll('#essentialList input, #recommendList input');
+  const pill = document.getElementById('pillCount');
+  function updateCount(){
+    const total = allChecks.length;
+    const done = Array.from(allChecks).filter(c=>c.checked).length;
+    pill.textContent = `${done} / ${total} 準備完了`;
+  }
+  allChecks.forEach(c=>c.addEventListener('change', updateCount));
+  updateCount();
+</script>
+
+</body>
+</html>
